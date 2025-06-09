@@ -1,5 +1,5 @@
 "use client";
-
+//Generic Componenet from T3 setup i think
 import { useState } from "react";
 
 import { api } from "~/trpc/react";
