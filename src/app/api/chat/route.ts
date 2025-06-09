@@ -4,8 +4,12 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo',
+    // Call openai with model ID to get model object
+    const model = openai('gpt-4-turbo');
+
+    // Use the model's send() method to generate a response
+    const completion = await model.send({
+      system: 'You are a helpful assistant.',
       messages,
     });
 
