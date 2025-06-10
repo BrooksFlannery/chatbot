@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/server/db';
 import { chatTable } from '@/server/db/schema';
 
+//app/api/chat/route.ts
+//route that takes userId, creates new Chat, returns chatId
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await req.json();
