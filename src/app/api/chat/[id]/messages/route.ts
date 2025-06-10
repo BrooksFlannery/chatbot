@@ -4,6 +4,7 @@ import type { CoreMessage } from 'ai';
 import { db } from '@/server/db';
 import { messageTable } from '@/server/db/schema';
 import { eq } from 'drizzle-orm';
+import { NextRequest } from 'next/server';
 
 export async function POST(req: Request, context: { params: { id: string } }) {
   const params = await context.params;
@@ -59,7 +60,7 @@ type PostMessagesProp = {
   }
 }
 
-export async function GET( { params }: PostMessagesProp) {
+export async function GET( req: NextRequest, { params }: { params: {id:string}}) {
   const chatId = Number(params.id);
   
   if (isNaN(chatId)) {
