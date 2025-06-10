@@ -53,7 +53,8 @@ export async function POST(req: Request, context: { params: { id: string } }) {
   return result.toDataStreamResponse();
 }
 
-export async function GET( req : Request, {params}: { params: { id: string } }) {
+export async function GET( req : Request, context: { params: { id: string } }) {
+  const params = await context.params;
   const chatId = Number(params.id);
   
   if (isNaN(chatId)) {
