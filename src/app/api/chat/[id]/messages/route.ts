@@ -6,9 +6,9 @@ import { messageTable } from '@/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { NextRequest } from 'next/server';
 
-export async function POST(req: Request, context: { params: { id: string } }) {
-  const params = await context.params;
-  const chatId = Number(params.id);
+export async function POST( req: NextRequest, { params }: { params: Promise<{id:string}>}) {
+  const {id} = await params
+  const chatId = Number(id);
 
   if (isNaN(chatId)) {
     return new Response(JSON.stringify({ error: 'Invalid chat id' }), { status: 400 });
