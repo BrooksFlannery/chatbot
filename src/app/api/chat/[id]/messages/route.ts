@@ -60,8 +60,9 @@ type PostMessagesProp = {
   }
 }
 
-export async function GET( req: NextRequest, { params }: { params: {id:string}}) {
-  const chatId = Number(params.id);
+export async function GET( req: NextRequest, { params }: { params: Promise<{id:string}>}) {
+  const {id} = await params
+  const chatId = Number(id);
   
   if (isNaN(chatId)) {
     return new Response(JSON.stringify({ error: 'Invalid chat id' }), { status: 400 });
