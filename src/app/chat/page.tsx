@@ -1,0 +1,27 @@
+// app/page.tsx
+'use client';
+
+// import { useChat } from '@ai-sdk/react';
+
+export default function Sppof() {
+  // const { messages, input, handleInputChange, handleSubmit } = useChat();
+
+  return (
+    <div>
+      {/* {messages.map(m => (
+        <div key={m.id} className="whitespace-pre-wrap">
+          {m.role === 'user' ? 'User: ' : 'AI: '}
+          {m.content}
+        </div>
+      ))}
+
+      <form onSubmit={handleSubmit}>
+        <input
+          value={input}
+          placeholder="Say something..."
+          onChange={handleInputChange}
+        />
+      </form> */}
+    </div>
+  );
+}

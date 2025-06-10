@@ -1,17 +1,30 @@
-import { openai } from '@ai-sdk/openai';
-import { streamText } from 'ai';
-import type { CoreMessage } from 'ai';
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/server/db';
+import { chatTable } from '@/server/db/schema';
 
-export async function POST(req: Request) {
-  const body = (await req.json()) as { messages: CoreMessage[] };
+//app/api/chat/route.ts
+//route that takes userId, creates new Chat, returns chatId
+export async function POST(req: NextRequest) {
+  try {
+    const { userId } = await req.json();
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    }
 
-  const messages = body.messages;
+    const [newChat] = await db
+      .insert(chatTable)
+      .values({
+        user_id:userId,
+      })
+      .returning({ id: chatTable.id });
 
-  const result = streamText({
-    model: openai('gpt-4-turbo'),
-    system: 'You are a helpful assistant.',
-    messages,
-  });
-
-  return result.toDataStreamResponse();
+    return NextResponse.json({ id: newChat.id });
+  } catch (error) {
+    console.error('Error in /api/chat POST:', error);
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
 }
+

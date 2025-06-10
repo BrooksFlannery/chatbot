@@ -1,27 +1,24 @@
-// Example model schema from the Drizzle docs
-// https://orm.drizzle.team/docs/sql-schema-declaration
-
+import { pgTable, integer, text, timestamp, varchar } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { index, pgTableCreator } from "drizzle-orm/pg-core";
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
-export const createTable = pgTableCreator((name) => `my-chatbot_${name}`);
+export const userTable = pgTable("users", {
+  id: integer().primaryKey().generatedByDefaultAsIdentity(),
+  // author_id: integer(),//maybe later this will be useful
+  user_name: varchar({ length: 256 }).notNull(),
+  email: varchar({ length: 256 }).notNull(),
+  created_at: timestamp({ withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
 
-export const posts = createTable(
-  "post",
-  (d) => ({
-    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-    name: d.varchar({ length: 256 }),
-    createdAt: d
-      .timestamp({ withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-  }),
-  (t) => [index("name_idx").on(t.name)],
-);
+export const chatTable = pgTable("chats", {
+  id: integer().primaryKey().generatedByDefaultAsIdentity(),
+  user_id: integer().notNull().references(() => userTable.id),
+  chat_name: varchar({ length: 256 }).default(sql`'New Chat'`),
+  created_at: timestamp({ withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const messageTable = pgTable("messages", {
+  id: integer().primaryKey().generatedByDefaultAsIdentity(),
+  chat_id: integer().notNull().references(() => chatTable.id),
+  content: text().notNull(),
+  created_at: timestamp({ withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+});

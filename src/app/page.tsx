@@ -1,27 +1,27 @@
-// app/page.tsx
-'use client';
+"use client";
+import { useRouter } from 'next/navigation';
 
-import { useChat } from 'ai/react';
+export default function CreateChatButton() {
+    const router = useRouter();
 
-export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
+    async function handleCreateChat() {
+    const userId = 1;
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
 
-  return (
-    <div>
-      {messages.map(m => (
-        <div key={m.id} className="whitespace-pre-wrap">
-          {m.role === 'user' ? 'User: ' : 'AI: '}
-          {m.content}
-        </div>
-      ))}
+    const data = await res.json();
 
-      <form onSubmit={handleSubmit}>
-        <input
-          value={input}
-          placeholder="Say something..."
-          onChange={handleInputChange}
-        />
-      </form>
-    </div>
-  );
+    if (!res.ok || !data?.id) {
+      console.error('Failed to create chat:', data);
+      return;
+    }
+
+    router.push(`/chat/${data.id}`);
+    
+    }
+
+  return <button onClick={handleCreateChat}>Create Chat</button>;
 }
