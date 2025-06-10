@@ -3,32 +3,19 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
+import { ChatData } from '@/lib/definitions/types';
 
 export default function Chat() {
   const { id: chatId } = useParams();
   const [initialMessages, setInitialMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingMsg, setLoadingMsg] = useState<boolean>(true);
+  const [loadingChat, setLoadingChat] = useState<boolean>(true);
+  const [chat, setChat] = useState<ChatData | undefined>(undefined)
 
-  // Load initial messages from database
   useEffect(() => {
-    if (!chatId) return;
-    
-    fetch(`/api/chat/${chatId}/messages`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setInitialMessages(data);
-        } else {
-          console.error('Unexpected data from API:', data);
-          setInitialMessages([]);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch chat history:', err);
-        setInitialMessages([]);
-        setLoading(false);
-      });
+    if (!chatId) return;//maybe redirect here
+    getChat();//these should prob get put into an api class implementing an interface like the tictactoe
+    getMsg();
   }, [chatId]);
 
   // Use the AI SDK's useChat hook with proper configuration
@@ -40,7 +27,44 @@ export default function Chat() {
     },
   });
 
-  if (loading) {
+  function getChat(){
+    fetch(`/api/chat/${chatId}`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data) {//this doesnt check for incorrect data
+        setChat(data);
+      } else {
+        console.error('Unexpected data from API:', data);
+        setChat(undefined)
+      }
+      setLoadingChat(false);
+    })
+    .catch((err) => {
+      console.error('Failed to fetch chat history:', err);
+      setChat(undefined);
+      setLoadingChat(false);
+    });
+  }
+  function getMsg(){
+      fetch(`/api/chat/${chatId}/messages`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setInitialMessages(data);
+          } else {
+            console.error('Unexpected data from API:', data);
+            setInitialMessages([]);
+          }
+          setLoadingMsg(false);
+        })
+        .catch((err) => {
+          console.error('Failed to fetch chat history:', err);
+          setInitialMessages([]);
+          setLoadingMsg(false);
+        });
+    }
+
+  if (loadingMsg) {
     return <div>Loading chat...</div>;
   }
 

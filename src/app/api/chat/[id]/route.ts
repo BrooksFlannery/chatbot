@@ -2,13 +2,14 @@ import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import type { CoreMessage } from 'ai';
 import { db } from '@/server/db';
-import { messageTable } from '@/server/db/schema';
+import { chatTable, messageTable } from '@/server/db/schema';
 import { eq } from 'drizzle-orm';
+import { NextRequest } from 'next/server';
 
 // post route that takes messages, new message, adds new message to db, then runs ai sdk on combined messages, then returns result(dont worry about saving result to db for now)
 //get route that takes an chat id, filters db message table by it, then returns result
 //app/api/chat/[id]/messages
-export async function POST(req: Request, context: { params: { id: string } }) {
+export async function POST(req: NextRequest, context: { params: { id: string } }) {
   const params = await context.params;
   const chatId = Number(params.id);
 
@@ -40,22 +41,17 @@ export async function POST(req: Request, context: { params: { id: string } }) {
   return result.toDataStreamResponse();
 }
 
-export async function GET( req : Request, { params }: { params: { id: string } }) {
+export async function GET( req : NextRequest, { params }: { params: { id: string } }) {
+  console.log("hdsjkahfoipdshfsoidfjpsoagdksljgoifuewaoijfo");
   const chatId = Number(params.id);
   if (isNaN(chatId)) {
     return new Response(JSON.stringify({ error: 'Invalid chat id' }), { status: 400 });
   }
 
-  const messages = await db
+  const chat = await db
     .select()
-    .from(messageTable)
-    .where(eq(messageTable.chat_id, chatId))
-    .orderBy(messageTable.created_at);
+    .from(chatTable)
+    .where(eq(messageTable.id, chatId))
 
-  const formatted = messages.map(msg => ({
-    role: 'assistant',
-    content: msg.content,
-  }));
-
-  return new Response(JSON.stringify(formatted));
+  return new Response(JSON.stringify(chat));
 }
