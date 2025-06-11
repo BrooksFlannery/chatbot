@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/server/db';
-import { chatTable, roleEnum } from '@/server/db/schema';
+import { db } from '@/lib/db';
+import { chatTable, roleEnum } from '@/lib/db/schema';
 import { MsgData } from '@/lib/definitions/types';
 import { eq } from 'drizzle-orm';
 

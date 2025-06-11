@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+
+:root{
+  background: linear-gradient(180deg, #0d0110 0%, #03112c 50%);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  color: rgb(213, 221, 232);
+
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.sidebar{
+  width: fit-content;
+  max-width: 30dvw;
+  height: 100dvh;
+  background-color: #03112c;
+  border-right: solid #3382c8;
+}
+.chats{
+  margin: 15px 0px;
+  border-radius: 0 10px 10px 0;
+  padding: 10px;
+  transition: background-color 0.2s ease;
+
+}
+.chats:hover{
+  cursor: pointer;
+  background-color: rgb(51, 130, 200);
+  color: white;
+}
+
+.create-button{
+  display: flex;
+  justify-self: end;
+    margin: 15px;
+  border-radius: 10px;
+  padding: 10px;
+  transition: background-color 0.2s ease;
+}
+.create-button:hover{
+  border-radius: 0 10px 10px 0;
+    background-color: rgb(51, 130, 200);
+
+  padding: 10px;
+}
+
+.chat-container{
+  width: 70dvw;
+  display: flex;
+  flex-direction: column;
+  justify-self: center;
+}
+
+.user{
+  text-align: end;
+}
+
+.input-form{
+  display: flex;
+  justify-content: center;
+  margin-top:10dvh;
+}

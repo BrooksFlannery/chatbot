@@ -5,23 +5,23 @@ export default function CreateChatButton() {
     const router = useRouter();
 
     async function handleCreateChat() {
-    const userId = 1;
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
+      const userId = 1;
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok || !data?.id) {
-      console.error('Failed to create chat:', data);
-      return;
-    }
+      if (!res.ok || !data?.id) {
+        console.error('Failed to create chat:', data);
+        return;
+      }
 
-    router.push(`/chat/${data.id}`);
+      router.push(`/chat/${data.id}`);
     
     }
 
-  return <button onClick={handleCreateChat}>Create Chat</button>;
+  return <button className='create-button' onClick={handleCreateChat}>Create Chat</button>;
 }

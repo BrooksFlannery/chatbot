@@ -1,5 +1,5 @@
-import { db } from '@/server/db';
-import { messageTable } from '@/server/db/schema';
+import { db } from '@/lib/db';
+import { messageTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
 

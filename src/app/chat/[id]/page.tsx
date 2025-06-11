@@ -8,9 +8,10 @@ import { chatSchema } from '@/lib/definitions/zod';
 
 export default function Chat() {
   const { id: chatId } = useParams();
-  const [loadingMsgs, setLoadingMsg] = useState<boolean>(true);
-  const [loadingChat, setLoadingChat] = useState<boolean>(true);
-  const [loadingRes, setLoadingRes] = useState<boolean>(false);
+  // const [loadingMsgs, setLoadingMsg] = useState<boolean>(true);
+  // const [loadingChat, setLoadingChat] = useState<boolean>(true);
+  const [thinking, setThinking] = useState<boolean>(false);
+  const [responding, setResponding] = useState<boolean>(false);
   const [chat, setChat] = useState<ChatData | undefined>(undefined)
   
   const [input, setInput] = useState('');
@@ -40,12 +41,10 @@ export default function Chat() {
         console.error('Unexpected data from API:', data);
         setChat(undefined)
       }
-      setLoadingChat(false);
     })
     .catch((err) => {
       console.error('Failed to fetch chat history:', err);
       setChat(undefined);
-      setLoadingChat(false);
     });
   }
   function getMsg(){
@@ -58,17 +57,16 @@ export default function Chat() {
             console.error('Unexpected data from API:', data);
             setMessages([]);
           }
-          setLoadingMsg(false);
         })
         .catch((err) => {
           console.error('Failed to fetch chat history:', err);
           setMessages([]);
-          setLoadingMsg(false);
         });
     }
 
  async function sendMsg(msg: string) {
-  setLoadingRes(true);
+  setResponding(true);
+  setThinking(true);
   
   try {
     const res = await fetch(`/api/chat/${chatId}/messages`, {
@@ -85,13 +83,13 @@ export default function Chat() {
 
     if (!res.body) return;
 
+    setThinking(false);
     const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
-    const aiMessageId = `ai-${Date.now()}`; // Use timestamp for unique ID
-    let aiMessageContent = ''; // Track content separately
-    let buffer = ''; // Move buffer outside the loop
+    const aiMessageId = `ai-${Date.now()}`;
+    let aiMessageContent = '';
+    let buffer = '';
 
     try {
-      // Create AI message placeholder
       const newAiMessage = {
         id: aiMessageId,
         role: 'assistant',
@@ -103,17 +101,15 @@ export default function Chat() {
         const { done, value } = await reader.read();
         if (done) break;
 
-        buffer += value; // Accumulate chunks
+        buffer += value; 
         const lines = buffer.split('\n');
-        buffer = lines.pop() || ''; // Keep incomplete line in buffer
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
           if (line.startsWith('0:')) {
             try {
               const content = JSON.parse(line.slice(2));
-              const textToAdd = content.textDelta || content.text || content; // Handle different response formats
-              
-              aiMessageContent += textToAdd; // Update our local content tracker
+              aiMessageContent += content;
               
               setMessages(prev => 
                 prev.map(msg =>
@@ -129,7 +125,6 @@ export default function Chat() {
         }
       }
 
-      // Save AI message to database using the accumulated content
       if (aiMessageContent.trim()) {
         console.log('Saving AI message:', aiMessageContent);
         
@@ -143,7 +138,6 @@ export default function Chat() {
 
         if (saveResponse.ok) {
           const savedMessage = await saveResponse.json();
-          // Update the message with the real database ID
           setMessages(prev =>
             prev.map(msg =>
               msg.id === aiMessageId 
@@ -162,36 +156,43 @@ export default function Chat() {
   } catch (error) {
     console.error('Error in sendMsg:', error);
   } finally {
-    setLoadingRes(false);
+    setResponding(false);
+    setThinking(false);
   }
 }
 
   return (
-    <div>
+    <div className='chat-container'>
 
-      {loadingChat &&
+      {!chat &&
       <div>Loading Chat Info...</div>}
-      {!loadingChat &&
+      {chat &&
       <div>{JSON.stringify(chat.chatName)}</div>}
 
-      {loadingMsgs &&
+      {!messages &&
       <div>Loading Messages...</div>}
-      {!loadingMsgs &&
-      messages.map((message, i) => {
-        return(
-        <div key={i} className="whitespace-pre-wrap">
-          {message.role === 'user' ? 'User: ' : 'AI: '}
-          {message.content}
-        </div>)
+      {messages && messages.map((message, i) => {
+        return (
+          <div
+            key={i}
+            className={`message ${message.role === 'user' ? 'user' : 'bot'}`}
+          >
+            {message.role === 'user' ? '' : 'AI: '}
+            {message.content}
+            {message.role === 'user' ? ': User' : ''}
+
+          </div>
+
+        );
       })}
 
-      {loadingRes && (
+      {thinking && (
         <div className="whitespace-pre-wrap">
           AI: <span className="animate-pulse">Thinking...</span>
         </div>
       )}
 
-          <form onSubmit={e => {
+          <form className ="input-form" onSubmit={e => {
             e.preventDefault();
             const newUserMsg = {
               id: 'temp-user',
@@ -207,11 +208,11 @@ export default function Chat() {
           value={input}
           placeholder="Say something..."
           onChange={(e) => {setInput(e.target.value)}}
-          disabled={loadingChat || loadingRes}//i think this might be weird
+          disabled={ responding }
           autoFocus
         />
-        <button type="submit" disabled={loadingRes || !input}>
-          {loadingRes ? 'Sending...' : 'Send'}
+        <button type="submit" disabled={responding || !input}>
+          Send
         </button>
       </form>
     </div>

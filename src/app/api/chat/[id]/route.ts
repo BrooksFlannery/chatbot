@@ -1,8 +1,8 @@
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import type { CoreMessage } from 'ai';
-import { db } from '@/server/db';
-import { chatTable, messageTable } from '@/server/db/schema';
+import { db } from '@/lib/db';
+import { chatTable, messageTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { NextRequest } from 'next/server';
 

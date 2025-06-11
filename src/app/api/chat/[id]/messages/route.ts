@@ -1,8 +1,8 @@
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import type { CoreMessage } from 'ai';
-import { db } from '@/server/db';
-import { messageTable } from '@/server/db/schema';
+import { db } from '@/lib/db';
+import { messageTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { NextRequest } from 'next/server';
 
@@ -19,7 +19,6 @@ export async function POST( req: NextRequest, { params }: { params: Promise<{id:
   if (!message || typeof message !== 'string') {
     return new Response(JSON.stringify({ error: 'No message provided' }), { status: 400 });
   }
-  
 
   await db.insert(messageTable).values({
     chat_id: chatId,

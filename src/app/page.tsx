@@ -1,37 +1,23 @@
 'use client'
 
 import CreateChatButton from "@/components/CreateChatButton";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Chats from '@/components/Chats'
 
 export default function Page(){
-  
   const [chats, setChats] = useState([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const router = useRouter();
 
-
-  
   useEffect(() => {
     getChats();//this should be in an api interface i think like the tictactoe
   }, []);
   
   return(
-    <>
-        <CreateChatButton />
-        
-        {loading && 
-          <div>Loading Chats...</div>
-        }
-        {!loading &&
-        chats.map((chat)=> {
-          console.log(chat)
-          return(
-            <div onClick={ () => router.push(`/chat/${chat.id}`)}
-              key={chat.id}> {chat.chat_name} {chat.created_at}</div>
-          )
-        })}
-      </>
+    <div className="sidebar">
+      <CreateChatButton />
+      {chats.length===0 && 
+        <div>Loading Chats...</div>}
+      {chats.length > 0 && <Chats chats={chats} /> }
+    </div>
     )
     
     async function getChats(){
@@ -48,6 +34,5 @@ export default function Page(){
           return;
         }
           setChats(data)
-          setLoading(false)
     }
   }
