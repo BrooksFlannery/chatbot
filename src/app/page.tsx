@@ -1,27 +1,38 @@
-"use client";
-import { useRouter } from 'next/navigation';
+'use client'
 
-export default function CreateChatButton() {
-    const router = useRouter();
+import CreateChatButton from "@/components/CreateChatButton";
+import { useEffect, useState } from "react";
+import Chats from '@/components/Chats'
 
-    async function handleCreateChat() {
-    const userId = 1;
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
+export default function Page(){
+  const [chats, setChats] = useState([]);
 
-    const data = await res.json();
-
-    if (!res.ok || !data?.id) {
-      console.error('Failed to create chat:', data);
-      return;
-    }
-
-    router.push(`/chat/${data.id}`);
+  useEffect(() => {
+    getChats();//this should be in an api interface i think like the tictactoe
+  }, []);
+  
+  return(
+    <div className="sidebar">
+      <CreateChatButton />
+      {chats.length===0 && 
+        <div>Loading Chats...</div>}
+      {chats.length > 0 && <Chats chats={chats} /> }
+    </div>
+    )
     
+    async function getChats(){
+        const userId = 1;
+        const res = await fetch("/api/chat?userId=1", {//this is not good, we should use cookies or something like that later on(security vulnerability bc anyone who has userId can get it)
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+    
+        const data = await res.json();
+    
+        if (!res.ok) {
+          console.error('Failed to get chats:', data);
+          return;
+        }
+          setChats(data)
     }
-
-  return <button onClick={handleCreateChat}>Create Chat</button>;
-}
+  }

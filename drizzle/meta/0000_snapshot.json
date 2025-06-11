@@ -1,5 +1,5 @@
 {
-  "id": "9ff3c236-cb99-4897-9061-a992b6231c6c",
+  "id": "83f0d76a-dfce-429b-b540-2babfa73ae63",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -107,6 +107,20 @@
           "primaryKey": false,
           "notNull": true,
           "default": "CURRENT_TIMESTAMP"
+        },
+        "role": {
+          "name": "role",
+          "type": "role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accessed_at": {
+          "name": "accessed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
         }
       },
       "indexes": {},
@@ -181,7 +195,18 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.role": {
+      "name": "role",
+      "schema": "public",
+      "values": [
+        "user",
+        "assistant",
+        "tool",
+        "system"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},
