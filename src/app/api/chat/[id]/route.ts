@@ -6,52 +6,18 @@ import { chatTable, messageTable } from '@/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { NextRequest } from 'next/server';
 
-// post route that takes messages, new message, adds new message to db, then runs ai sdk on combined messages, then returns result(dont worry about saving result to db for now)
-//get route that takes an chat id, filters db message table by it, then returns result
-//app/api/chat/[id]/messages
-export async function POST(req: NextRequest, context: { params: { id: string } }) {
-  const params = await context.params;
-  const chatId = Number(params.id);
-
-  if (isNaN(chatId)) {
-    return new Response(JSON.stringify({ error: 'Invalid chat id' }), { status: 400 });
-  }
-
-  const body = (await req.json()) as { messages: CoreMessage[] };
-  const newMessages = body.messages;
-
-  const existingMessages = await db
-    .select()
-    .from(messageTable)
-    .where(eq(messageTable.chat_id, chatId))
-    .orderBy(messageTable.created_at);
-
-  const dbMessages: CoreMessage[] = existingMessages.map(msg => ({
-    role: 'assistant', // this is wrong bc ai thinks that is them
-    content: msg.content,
-  }));
-
-  const allMessages = [...dbMessages, ...newMessages];
-
-  const result = streamText({
-    model: openai('gpt-4-turbo'),
-    system: 'You are a helpful assistant.',
-    messages: allMessages,
-  });
-  return result.toDataStreamResponse();
-}
-
 export async function GET( req : NextRequest, { params }: { params: { id: string } }) {
-  console.log("hdsjkahfoipdshfsoidfjpsoagdksljgoifuewaoijfo");
-  const chatId = Number(params.id);
+  const searchParams = await params;
+
+  const chatId = Number(searchParams.id);
   if (isNaN(chatId)) {
     return new Response(JSON.stringify({ error: 'Invalid chat id' }), { status: 400 });
   }
 
-  const chat = await db
+  const [chat] = await db
     .select()
     .from(chatTable)
-    .where(eq(messageTable.id, chatId))
+    .where(eq(chatTable.id, chatId))
 
   return new Response(JSON.stringify(chat));
 }

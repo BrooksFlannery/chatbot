@@ -1,28 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/server/db';
-import { chatTable } from '@/server/db/schema';
+import { chatTable, roleEnum } from '@/server/db/schema';
 import { MsgData } from '@/lib/definitions/types';
 import { eq } from 'drizzle-orm';
 
-
-//app/api/chat/route.ts
-
-// export async function GET( req : Request, { params }: { params: { id: string } }) {
-//   const chatId = Number(params.id);
-//   if (isNaN(chatId)) {
-//     return new Response(JSON.stringify({ error: 'Invalid chat id' }), { status: 400 });
-//   }
-
-//   const messages = await db
-//     .select()
-//     .from(messageTable)
-//     .where(eq(messageTable.chat_id, chatId))
-//     .orderBy(messageTable.created_at);
-
-//   const formatted = messages.map(msg => ({
-//     role: 'assistant',
-//     content: msg.content,
-//   }));
 
 //get route next, must return array of messages. i should prob be defining message typs somewhere
 export async function GET(req: NextRequest) {
@@ -55,7 +36,6 @@ export async function POST(req: NextRequest) {
     if (!userId) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
-
     const [newChat] = await db
       .insert(chatTable)
       .values({

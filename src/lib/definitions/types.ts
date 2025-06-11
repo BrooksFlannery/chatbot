@@ -1,20 +1,8 @@
-export type UserData = {
-    id: number;
-    userName: string;
-    email: string;
-    createdAt:string;//is there some timestamp type idk
-}
+import {z} from 'zod';
+import { chatSchema,userSchema,messageSchema } from './zod';
 
-export type ChatData = {
-    id: number;
-    userId: number;
-    chatName: string;
-    createdAt: string;
-}
+export type UserData = z.infer<typeof userSchema>
 
-export type MsgData = {
-    id: number;
-    chatId: number;
-    content: string;
-    createdAt;
-}
+export type ChatData = z.infer<typeof chatSchema>
+
+export type MsgData = z.infer<typeof messageSchema>

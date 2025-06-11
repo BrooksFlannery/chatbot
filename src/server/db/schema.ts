@@ -1,4 +1,4 @@
-import { pgTable, integer, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgTable, integer, text, timestamp, varchar, pgEnum } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 export const userTable = pgTable("users", {
@@ -16,9 +16,13 @@ export const chatTable = pgTable("chats", {
   created_at: timestamp({ withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
+export const roleEnum = pgEnum('role', ['user', 'assistant', 'tool', 'system']);
+
 export const messageTable = pgTable("messages", {
   id: integer().primaryKey().generatedByDefaultAsIdentity(),
   chat_id: integer().notNull().references(() => chatTable.id),
   content: text().notNull(),
   created_at: timestamp({ withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+  role: roleEnum('role').notNull(),
+  accessed_at: timestamp({ withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });

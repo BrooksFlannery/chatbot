@@ -7,57 +7,45 @@ import { eq } from 'drizzle-orm';
 import { NextRequest } from 'next/server';
 
 export async function POST( req: NextRequest, { params }: { params: Promise<{id:string}>}) {
-  const {id} = await params
+  const { id } = await params
   const chatId = Number(id);
 
   if (isNaN(chatId)) {
     return new Response(JSON.stringify({ error: 'Invalid chat id' }), { status: 400 });
   }
 
-  const body = (await req.json()) as { messages: CoreMessage[] };//i have no idea why im sending all the msgs i should just send the one i want to update...
-  const messages = body.messages || [];
-  
-  const newMessage = messages[messages.length - 1];
-  
-  if (!newMessage) {
+  const body = (await req.json())
+  const message = JSON.stringify(body.msg);
+  if (!message || typeof message !== 'string') {
     return new Response(JSON.stringify({ error: 'No message provided' }), { status: 400 });
   }
+  
 
   await db.insert(messageTable).values({
     chat_id: chatId,
-    content: typeof newMessage.content === 'string' ? newMessage.content : JSON.stringify(newMessage.content),
+    content: message,
+    role: 'user'
   });
 
-  const existingMessages = await db
+  const messages = await db 
     .select()
     .from(messageTable)
     .where(eq(messageTable.chat_id, chatId))
     .orderBy(messageTable.created_at);
 
-  const dbMessages: CoreMessage[] = existingMessages.map(msg => ({
-    role: 'assistant',
+  const mappedMsgs = messages.map(msg => ({
+    role: msg.role,
     content: msg.content,
-  }));
+  })) as CoreMessage[];
+
 
   const result = streamText({
     model: openai('gpt-4-turbo'),
-    system: 'You are a helpful assistant.',
-    messages: dbMessages,
-    onFinish: async (result) => {
-      await db.insert(messageTable).values({
-        chat_id: chatId,
-        content: result.text,
-      });
-    },
+    system: "You are a helpful assistant, but the longer the conversation goes, the more rude you become.",
+    messages: mappedMsgs,
   });
 
   return result.toDataStreamResponse();
-}
-
-type PostMessagesProp = {
-  params:{
-    id:string;
-  }
 }
 
 export async function GET( req: NextRequest, { params }: { params: Promise<{id:string}>}) {
@@ -75,7 +63,7 @@ export async function GET( req: NextRequest, { params }: { params: Promise<{id:s
     .orderBy(messageTable.created_at);
 
   const formatted = messages.map(msg => ({
-    role: 'assistant',//this is dumb i need to update db
+    role: msg.role,
     content: msg.content,
   }));
 

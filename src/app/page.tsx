@@ -13,7 +13,7 @@ export default function Page(){
 
   
   useEffect(() => {
-    getChats();
+    getChats();//this should be in an api interface i think like the tictactoe
   }, []);
   
   return(
