@@ -1,7 +1,5 @@
 import { db } from '@/lib/db';
 import { messageTable } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
-
 
 export async function POST(request: Request, {params}: { params: Promise<{id:string}>}) {
     const { id } = await params
