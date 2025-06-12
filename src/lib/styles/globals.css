@@ -5,6 +5,9 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+button:disabled{
+  background-color: red;
+}
 
 :root{
   background: linear-gradient(180deg, #0d0110 0%, #03112c 50%);

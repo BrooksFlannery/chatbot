@@ -1,27 +1,15 @@
 "use client";
 import { useRouter } from 'next/navigation';
+import { clientBotAPI } from '@/lib/api';
 
 export default function CreateChatButton() {
-    const router = useRouter();
+  const api = new clientBotAPI();
+  const router = useRouter();
 
-    async function handleCreateChat() {
-      const userId = 1;
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
+  async function handleClick(){
+    const chatId = await api.createChat();
+    router.push(`/chat/${chatId}`);
+  }
 
-      const data = await res.json();
-
-      if (!res.ok || !data?.id) {
-        console.error('Failed to create chat:', data);
-        return;
-      }
-
-      router.push(`/chat/${data.id}`);
-    
-    }
-
-  return <button className='create-button' onClick={handleCreateChat}>Create Chat</button>;
+  return <button className='create-button' onClick={handleClick}>Create Chat</button>;
 }
