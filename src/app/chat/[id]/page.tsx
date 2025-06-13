@@ -2,9 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useChat } from '@ai-sdk/react';
 import { ChatData } from '@/lib/definitions/types';
-import { chatSchema } from '@/lib/definitions/zod';
 import { clientBotAPI } from '@/lib/api';
 
 export default function Chat() {
@@ -19,13 +17,10 @@ export default function Chat() {
   const [messages, setMsgs] = useState([]);
 
   useEffect(() => {
-    if (!chatId) return;//maybe redirect here
+    if(!chatId || typeof chatId !== "string" ) return;//redirect here would be good
 
-    const numericChatId = Number(chatId);
-   if (isNaN(numericChatId)) return; 
-
-    api.getChat(numericChatId).then(setChat)
-    api.getMsgs(numericChatId).then(setMsgs);//also maybe this is a good spot for the no waterfall thing?
+    api.getChat(chatId).then(setChat)
+    api.getMsgs(chatId).then(setMsgs);//also maybe this is a good spot for the no waterfall thing?
   }, [chatId]);
 
   const handleSubmit = async (e) => {
